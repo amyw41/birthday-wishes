@@ -1,27 +1,22 @@
 /* =========================================================
-   Envelope: corner button -> centers + blacks out -> the flap
-   lifts open on its top hinge -> the note peeks up through the
-   gap -> click the note to pull it fully out.
+   Envelope: click the corner envelope -> the background blacks
+   out and the letter's overview pops up, centered.
 
-   States: closed -> opening -> peeking -> reading -> closing
-   The envelope is two layers cut from the same photo (see
-   envelope.css): a "body" (the pocket) and a "flap" (just the
-   top triangle), hinged along the top edge. Opening rotates
-   the flap back in 3D instead of just fading something out.
-   The note is always centered on the envelope's own center
-   point (xPercent/yPercent -50, set once); only its extra `y`
-   offset (a percentage of its OWN height, so it scales with
-   whatever size it currently is) and size change between
-   states, so it can slide from "hidden behind the envelope"
-   to "peeking through the flap gap" to "pulled out and
-   enlarged" without ever needing to know pixel values.
+   Scroll down on it -> it zooms into a close-up, readable
+   version of the same letter, anchored to the top -- keep
+   scrolling and it scrolls on down through that (taller,
+   zoomed) image so the rest of the letter can be read. Scroll
+   back up past its top -> it zooms back out to the overview.
+
+   Click off (background/Escape) while reading steps back to
+   the overview first; click off again from the overview closes
+   it.
    ========================================================= */
 
-import { FINAL_LETTER } from "./wishes.js";
 import { playClick } from "./sound.js";
 
-let btn, overlay, stage, note, noteText, flap;
-let state = "closed"; // closed | opening | peeking | reading | closing
+let btn, overlay, note, cover, reader;
+let state = "closed"; // closed | cover | reading | busy (mid zoom transition)
 
 export function initEnvelope() {
   btn = document.getElementById("envelope-btn");
@@ -31,89 +26,113 @@ export function initEnvelope() {
   overlay.className = "envelope-overlay";
   document.body.appendChild(overlay);
 
-  stage = document.createElement("div");
-  stage.className = "envelope-stage";
-  stage.innerHTML = `
-    <div class="envelope-body"><img class="envelope-img" src="assets/envelope.png" alt=""></div>
-    <div class="envelope-note">
-      <p class="envelope-note-text"></p>
+  note = document.createElement("div");
+  note.className = "envelope-note";
+  note.innerHTML = `
+    <div class="letter-cover">
+      <img src="assets/letter.png" alt="a letter for olivia">
     </div>
-    <div class="envelope-flap"><img class="envelope-img" src="assets/envelope.png" alt=""></div>
+    <div class="letter-reader">
+      <div class="letter-reader-inner">
+        <img src="assets/letter.png" alt="the letter, zoomed in">
+      </div>
+    </div>
   `;
-  document.body.appendChild(stage);
+  document.body.appendChild(note);
 
-  note = stage.querySelector(".envelope-note");
-  noteText = stage.querySelector(".envelope-note-text");
-  flap = stage.querySelector(".envelope-flap");
-  noteText.textContent = FINAL_LETTER;
+  cover = note.querySelector(".letter-cover");
+  reader = note.querySelector(".letter-reader");
 
-  gsap.set(stage, { xPercent: -50, yPercent: -50, scale: 0.5, opacity: 0 });
-  gsap.set(note, { xPercent: -50, yPercent: -50, y: "70%", opacity: 0 });
-  gsap.set(flap, { rotationX: 0, transformPerspective: 900 });
+  gsap.set(cover, { scale: 0.7, opacity: 0 });
+  gsap.set(reader, { opacity: 0 });
 
-  btn.addEventListener("click", openEnvelope);
-  overlay.addEventListener("click", () => {
-    if (state === "peeking" || state === "reading") closeEnvelope();
+  btn.addEventListener("click", openLetter);
+  overlay.addEventListener("click", clickOff);
+  cover.addEventListener("click", (e) => {
+    if (e.target.closest("img")) return;
+    clickOff();
   });
-  note.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (state === "peeking") pullNoteOut();
-    else if (state === "reading") closeEnvelope();
+  reader.addEventListener("click", (e) => {
+    if (e.target.closest("img")) return;
+    clickOff();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && (state === "peeking" || state === "reading")) closeEnvelope();
+    if (e.key === "Escape") clickOff();
   });
+
+  document.addEventListener("wheel", (e) => {
+    if (state === "cover" && e.deltaY > 0) {
+      e.preventDefault();
+      zoomIn();
+    } else if (state === "reading" && e.deltaY < 0 && reader.scrollTop <= 0) {
+      e.preventDefault();
+      zoomOut();
+    }
+  }, { passive: false });
 }
 
-function openEnvelope() {
+// clicking off: reading -> zooms back out to the overview; cover ->
+// closes the whole letter
+function clickOff() {
+  if (state === "reading") zoomOut();
+  else if (state === "cover") closeLetter();
+}
+
+function openLetter() {
   if (state !== "closed") return;
-  state = "opening";
+  state = "cover";
   playClick();
 
   btn.classList.add("is-hidden");
-  note.classList.remove("is-reading");
-  gsap.set(note, { y: "70%", opacity: 0 });
-  gsap.set(flap, { rotationX: 0 });
-
   overlay.classList.add("is-active");
-  stage.classList.add("is-active");
+  note.classList.add("is-active");
+  note.classList.remove("is-reading");
+  reader.scrollTop = 0;
+  gsap.set(reader, { opacity: 0 });
+  gsap.set(cover, { scale: 0.7, opacity: 0 });
 
-  gsap.timeline({ onComplete: () => { state = "peeking"; } })
-    .to(overlay, { opacity: 0.9, duration: 0.35, ease: "power1.out" }, 0)
-    .to(stage, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 0.05)
-    // the flap lifts open on its top hinge, swinging back and away
-    .to(flap, { rotationX: -155, duration: 0.5, ease: "power2.inOut" }, 0.35)
-    // the note peeks up through the gap once the flap is out of the way
-    .to(note, { y: "-8%", opacity: 1, duration: 0.4, ease: "power2.out" }, 0.65);
+  gsap.timeline()
+    .to(overlay, { opacity: 0.9, duration: 0.3, ease: "power1.out" }, 0)
+    .to(cover, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.4)" }, 0.05);
 }
 
-function pullNoteOut() {
-  if (state !== "peeking") return;
-  state = "reading";
-  playClick();
-
+function zoomIn() {
+  if (state !== "cover") return;
+  state = "busy";
   note.classList.add("is-reading");
-  gsap.to(note, { y: "-42%", duration: 0.55, ease: "power3.out" });
+  reader.scrollTop = 0;
+
+  gsap.timeline({ onComplete: () => { state = "reading"; } })
+    .to(cover, { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 0)
+    .to(reader, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 0);
 }
 
-function closeEnvelope() {
-  if (state === "closed" || state === "closing") return;
-  const wasReading = state === "reading";
-  state = "closing";
+function zoomOut() {
+  if (state !== "reading") return;
+  state = "busy";
 
   gsap.timeline({
     onComplete: () => {
-      stage.classList.remove("is-active");
       note.classList.remove("is-reading");
-      gsap.set(stage, { scale: 0.5, opacity: 0 });
-      gsap.set(flap, { rotationX: 0 });
+      state = "cover";
+    },
+  })
+    .to(reader, { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 0)
+    .to(cover, { opacity: 1, duration: 0.4, ease: "power2.inOut" }, 0);
+}
+
+function closeLetter() {
+  if (state === "closed" || state === "busy") return;
+
+  gsap.timeline({
+    onComplete: () => {
       overlay.classList.remove("is-active");
+      note.classList.remove("is-active", "is-reading");
       btn.classList.remove("is-hidden");
       state = "closed";
     },
   })
-    .to(note, { y: "70%", opacity: 0, duration: wasReading ? 0.4 : 0.3, ease: "power2.in" }, 0)
-    .to(flap, { rotationX: 0, duration: 0.4, ease: "power2.inOut" }, 0.15)
-    .to(stage, { scale: 0.5, opacity: 0, duration: 0.35, ease: "power2.in" }, 0.35)
-    .to(overlay, { opacity: 0, duration: 0.3, ease: "power1.in" }, 0.4);
+    .to(cover, { scale: 0.7, opacity: 0, duration: 0.25, ease: "power2.in" }, 0)
+    .to(reader, { opacity: 0, duration: 0.25, ease: "power2.in" }, 0)
+    .to(overlay, { opacity: 0, duration: 0.25, ease: "power1.in" }, 0);
 }

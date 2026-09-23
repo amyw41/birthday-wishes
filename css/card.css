@@ -29,7 +29,7 @@
 
 .wish-text {
   margin: 0;
-  font-family: 'Instrument Serif', var(--font-body);
+  font-family: var(--font-body);
   font-size: 1.6rem;
   line-height: 1.3;
 }

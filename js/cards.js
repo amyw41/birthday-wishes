@@ -33,6 +33,11 @@ import { playClick } from "./sound.js";
 // base allowed to run past the bottom edge -- only the top portion with
 // the flame needs to stay on screen, like a candle held up in front of you.
 const RISE_SCALE = 3.2;
+// RISE_SCALE (and the glow) were tuned on a 52px-tall candle. Candles are
+// now sized off the cake, so the rise is normalized against this to keep
+// the risen candle + glow the same size on screen whatever the cake size.
+const TUNED_CANDLE_H = 52;
+const TUNED_GLOW_PX = 320;
 const RISE_BASE_Y = 1.08; // fraction of viewport height -- >1 lets the base hang off-screen
 const OFFSCREEN_PX = 260; // how far below the viewport the candle/card start from
 const CARD_POP_PX = 420; // how far below its resting spot the card starts
@@ -146,6 +151,13 @@ function goDark(candle, index) {
   glow.innerHTML = `<div class="candle-glow-core"></div>`;
   glow.style.left = candle.style.left;
   glow.style.top = candle.style.top;
+  const candleH = candle.offsetHeight;
+  const riseScale = RISE_SCALE * (TUNED_CANDLE_H / candleH);
+  const glowPx = TUNED_GLOW_PX * (candleH / TUNED_CANDLE_H);
+  glow.style.width = `${glowPx}px`;
+  glow.style.height = `${glowPx}px`;
+  glow.style.marginTop = `${-candleH}px`; // base -> flame
+  glow.style.setProperty("--glow-k", candleH / TUNED_CANDLE_H);
   lift.appendChild(glow);
 
   active = {
@@ -185,7 +197,7 @@ function goDark(candle, index) {
   gsap.set(lift, {
     x: targetX - (rowRect.left + anchorX),
     y: startBaseY - (rowRect.top + anchorY),
-    scale: RISE_SCALE,
+    scale: riseScale,
   });
 
   gsap.timeline()

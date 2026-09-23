@@ -7,8 +7,9 @@
   --candle-color: #e0b17a;
   --hue-rotate: 0deg;
   position: absolute;
-  width: 14px;
-  height: 52px;
+  /* sized off the cake (--candle-h in base.css) so candles grow with it */
+  width: calc(var(--candle-h) * 0.27);
+  height: var(--candle-h);
   cursor: pointer;
   pointer-events: auto;
   transform-origin: bottom center;
@@ -29,34 +30,122 @@
   filter: hue-rotate(var(--hue-rotate));
 }
 
-.candle .flame {
+/* wrapper handles the wide, lazy sway + horizontal drift; the .flame
+   inside handles the fast lick/flicker -- splitting these into two
+   independently-timed layers is what keeps it from ever repeating in
+   a way the eye can lock onto */
+.candle .flame-wrap {
   position: absolute;
-  bottom: 90%;
+  bottom: 86%;
   left: 50%;
-  width: 12px;
-  height: 18px;
+  width: calc(var(--candle-h) * 0.2);
+  height: calc(var(--candle-h) * 0.38);
   transform: translateX(-50%);
   transform-origin: bottom center;
-  background: radial-gradient(circle at 50% 70%, #fff2c8 0%, var(--flame) 45%, transparent 75%);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  filter: drop-shadow(0 0 6px var(--flame));
-  animation: flicker 1.4s ease-in-out infinite;
+  animation: sway 3.1s ease-in-out infinite;
+}
+
+.candle .flame {
+  position: absolute;
+  inset: 0;
+  transform-origin: bottom center;
+  /* irregular, slightly lopsided teardrop -- a perfectly symmetric
+     shape is what reads as "fake" fire */
+  border-radius: 46% 54% 50% 50% / 80% 76% 24% 20%;
+  background: radial-gradient(circle at 48% 82%, #fff6d9 0%, #ffe9a8 14%, var(--flame) 46%, #ff7a2e 68%, rgba(255, 90, 30, 0) 78%);
+  filter: drop-shadow(0 0 calc(var(--candle-h) * 0.1) var(--flame));
+  animation: flicker 0.9s ease-in-out infinite, lick 2.3s ease-in-out infinite;
+}
+
+/* a second, smaller lobe offset to one side -- real flames constantly
+   split and merge into little sub-tongues, they're never one clean blob */
+.candle .flame::after {
+  content: "";
+  position: absolute;
+  left: 62%;
+  bottom: 6%;
+  width: 46%;
+  height: 62%;
+  transform: translateX(-50%);
+  transform-origin: bottom center;
+  border-radius: 50% 50% 50% 50% / 82% 70% 30% 18%;
+  background: radial-gradient(circle at 50% 80%, #fff2c2 0%, var(--flame) 50%, rgba(255, 122, 46, 0) 78%);
+  opacity: 0.75;
+  mix-blend-mode: screen;
+  animation: sublick 1.7s ease-in-out infinite;
+}
+
+/* a small blue-white hot core near the base, blended in -- real flames
+   are palest and coolest-looking right where they meet the wick */
+.candle .flame::before {
+  content: "";
+  position: absolute;
+  left: 48%;
+  bottom: 6%;
+  width: 40%;
+  height: 46%;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 50% 50% / 75% 75% 25% 25%;
+  background: radial-gradient(circle at 50% 62%, #ffffff 0%, #d9ecff 32%, rgba(160, 200, 255, 0) 76%);
+  opacity: 0.85;
+  mix-blend-mode: screen;
+  animation: core-pulse 0.6s ease-in-out infinite;
 }
 
 @keyframes flicker {
-  0%, 100% { transform: translateX(-50%) scale(1) rotate(-1deg); opacity: 1; }
-  25% { transform: translateX(-50%) scale(1.05, 0.95) rotate(1deg); opacity: 0.95; }
-  50% { transform: translateX(-50%) scale(0.95, 1.05) rotate(-2deg); opacity: 1; }
-  75% { transform: translateX(-50%) scale(1.02, 0.98) rotate(1deg); opacity: 0.9; }
+  0% { transform: scaleY(1) scaleX(1) skewX(0deg); opacity: 1; }
+  18% { transform: scaleY(1.12) scaleX(0.9) skewX(-2deg); opacity: 0.88; }
+  33% { transform: scaleY(0.88) scaleX(1.08) skewX(1deg); opacity: 1; }
+  47% { transform: scaleY(1.05) scaleX(0.95) skewX(-1deg); opacity: 0.82; }
+  61% { transform: scaleY(0.93) scaleX(1.05) skewX(2deg); opacity: 0.97; }
+  76% { transform: scaleY(1.08) scaleX(0.92) skewX(-1.5deg); opacity: 0.9; }
+  90% { transform: scaleY(0.97) scaleX(1.02) skewX(0.5deg); opacity: 1; }
+  100% { transform: scaleY(1) scaleX(1) skewX(0deg); opacity: 1; }
+}
+
+/* wider, slower shape breathing + a little vertical stretch, layered
+   under the fast flicker above */
+@keyframes lick {
+  0%, 100% { border-radius: 46% 54% 50% 50% / 80% 76% 24% 20%; }
+  40% { border-radius: 58% 42% 45% 55% / 74% 82% 20% 26%; }
+  70% { border-radius: 42% 58% 55% 45% / 84% 70% 26% 18%; }
+}
+
+@keyframes sublick {
+  0%, 100% { transform: translateX(-50%) scaleY(1) rotate(0deg); opacity: 0.7; }
+  30% { transform: translateX(-50%) scaleY(0.8) rotate(4deg); opacity: 0.4; }
+  55% { transform: translateX(-50%) scaleY(1.1) rotate(-3deg); opacity: 0.8; }
+  80% { transform: translateX(-50%) scaleY(0.9) rotate(2deg); opacity: 0.55; }
+}
+
+@keyframes core-pulse {
+  0%, 100% { opacity: 0.85; transform: translateX(-50%) scaleY(1); }
+  50% { opacity: 0.65; transform: translateX(-50%) scaleY(0.88); }
+}
+
+/* the slow, wide sway + a touch of horizontal drift so the whole flame
+   isn't rotating around one perfectly fixed pivot */
+@keyframes sway {
+  0%, 100% { rotate: -3deg; translate: 0 0; }
+  25% { rotate: 2deg; translate: 2% 0; }
+  50% { rotate: -1.5deg; translate: -1% 0; }
+  75% { rotate: 2.5deg; translate: 1.5% 0; }
 }
 
 /* lit-clicked: brighter glow to read as "active" */
 .candle[data-state="lit-clicked"] .flame {
-  filter: drop-shadow(0 0 10px var(--flame)) drop-shadow(0 0 24px rgba(255, 179, 71, 0.85));
+  filter: drop-shadow(0 0 calc(var(--candle-h) * 0.17) var(--flame))
+    drop-shadow(0 0 calc(var(--candle-h) * 0.42) rgba(255, 179, 71, 0.85));
 }
 
 /* blown: flame animation stops, GSAP owns opacity/scale from here */
-.candle[data-state="blown"] .flame {
+.candle[data-state="blown"] .flame-wrap {
+  animation: none;
+}
+
+.candle[data-state="blown"] .flame,
+.candle[data-state="blown"] .flame::before,
+.candle[data-state="blown"] .flame::after {
   animation: none;
 }
 

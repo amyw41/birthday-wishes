@@ -1,0 +1,47 @@
+/* =========================================================
+   Top ticker: a thin gray marquee bar pinned to the top of
+   the page, one phrase scrolling across it on a loop.
+   ========================================================= */
+
+.top-ticker {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 30;
+  overflow: hidden;
+  white-space: nowrap;
+  background: #ececea;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 4px 0;
+}
+
+.top-ticker-track {
+  display: inline-flex;
+  width: max-content;
+  /* two identical sets of items back to back -- sliding exactly one set's
+     width (-50%) loops seamlessly with no jump or gap */
+  animation: ticker-scroll 60s linear infinite;
+}
+
+.top-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 9px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #55524d;
+}
+
+.top-ticker-item::after {
+  content: "\2022";
+  margin-left: 9px;
+  color: #b3b0aa;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}

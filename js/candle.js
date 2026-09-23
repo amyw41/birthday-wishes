@@ -33,15 +33,20 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
 
   candle.innerHTML = `
     <img class="wick" src="assets/candle.png" alt="">
-    <div class="flame"></div>
+    <div class="flame-wrap"><div class="flame"></div></div>
   `;
 
+  const flameWrap = candle.querySelector(".flame-wrap");
   const flame = candle.querySelector(".flame");
+
+  // hover/lit lifts as a fraction of the candle's height (was -14px / -6px
+  // on a 52px candle), so they stay proportional when the cake is resized
+  const liftBy = (fraction) => -candle.offsetHeight * fraction;
 
   function riseUp() {
     if (candle.dataset.state !== "idle") return;
     candle.dataset.state = "hover";
-    gsap.to(candle, { y: -14, duration: 0.4, ease: "power2.out" });
+    gsap.to(candle, { y: liftBy(0.27), duration: 0.4, ease: "power2.out" });
   }
 
   function settleDown() {
@@ -52,7 +57,7 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
 
   function lightClick() {
     candle.dataset.state = "lit-clicked";
-    gsap.to(candle, { y: -6, scale: 1.2, duration: 0.2, ease: "power2.out" });
+    gsap.to(candle, { y: liftBy(0.115), scale: 1.2, duration: 0.2, ease: "power2.out" });
     candle.dispatchEvent(
       new CustomEvent("candle:lit-clicked", { bubbles: true, detail: { candle, index } })
     );
@@ -62,15 +67,15 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
   function blowOut() {
     candle.dataset.state = "blown";
     playBlow();
-    flame.style.willChange = "transform, opacity";
+    flameWrap.style.willChange = "transform, opacity";
     gsap.to(candle, { y: 0, scale: 1, duration: 0.3, ease: "power2.inOut" });
-    gsap.to(flame, {
+    gsap.to(flameWrap, {
       scale: 0,
       opacity: 0,
       duration: 0.25,
       ease: "power1.in",
       onComplete: () => {
-        flame.style.willChange = "auto";
+        flameWrap.style.willChange = "auto";
         candle.dispatchEvent(
           new CustomEvent("candle:blown", { bubbles: true, detail: { candle, index } })
         );

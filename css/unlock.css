@@ -1,0 +1,52 @@
+/* =========================================================
+   Unlock screen: a full-screen cover with one button, shown
+   before anything else. Tapping it is the one real user
+   gesture the browser needs to allow the song to play with
+   sound, so everything (song + the HBD sign falling in)
+   starts the instant it's tapped.
+   ========================================================= */
+
+.unlock-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: var(--bg);
+  text-align: center;
+  padding: 24px;
+}
+
+.unlock-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  color: var(--ink);
+}
+
+.unlock-btn {
+  appearance: none;
+  border: 1.5px solid var(--card-ink);
+  border-radius: 999px;
+  padding: 12px 30px;
+  background: var(--card-ink);
+  color: var(--card-bg);
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.unlock-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
+}
+
+.unlock-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}

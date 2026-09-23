@@ -1,18 +1,21 @@
 /* =========================================================
-   Envelope: a corner button that opens a little note.
+   Envelope: a corner button that pops up a letter.
 
-   Click the corner envelope -> it travels to center, the
-   background blacks out, and it "opens" (the note slides up
-   and peeks out from behind it). Click the peeking note -> it
-   pulls the rest of the way out to full, readable size, same
-   paper texture as the wish cards. Click it again, click the
-   background, or Escape closes everything back down.
+   Click the corner envelope -> the background blacks out and
+   the letter (overview, "letter.png") pops up, centered.
+   Scroll down on it and it zooms into a bigger, close-up view
+   of that same image, anchored to its top edge -- keep
+   scrolling and it scrolls on down through it since it's now
+   larger than the screen. Scroll back up past its top and it
+   zooms back out to the overview. Click off (background/
+   Escape) steps back one level at a time: reading -> overview
+   -> closed.
    ========================================================= */
 
 .envelope-btn {
   position: fixed;
   left: 18px;
-  top: 18px;
+  top: calc(var(--ticker-h) + 20px);
   z-index: 40;
   width: min(120px, 24vw);
   padding: 0;
@@ -50,92 +53,76 @@
   pointer-events: auto;
 }
 
-/* the centered stage the envelope + note animate within. The
-   envelope itself is split into two layers cut from the same
-   photo: a "body" (the pocket, clipped to exclude the flap
-   triangle) and a "flap" (just that triangle), hinged along
-   the top edge and rotated open in 3D -- see envelope.js. */
-.envelope-stage {
+/* full-viewport stage so the reading view has room to scroll;
+   the overview and reader panes inside it are each absolutely
+   positioned and crossfade between each other */
+.envelope-note {
   position: fixed;
-  left: 50%;
-  top: 50%;
+  inset: 0;
   z-index: 101;
-  width: min(320px, 80vw);
-  aspect-ratio: 512 / 359; /* envelope.png's own pixel ratio, so the
-    body/flap layers (position: absolute, both need a real box for
-    their clip-path percentages to resolve against) get a real height */
   pointer-events: none;
-  opacity: 0;
-  perspective: 900px;
 }
 
-.envelope-stage.is-active {
+.envelope-note.is-active {
   pointer-events: auto;
 }
 
-.envelope-img {
-  display: block;
-  width: 100%;
+/* ---------- overview (letter.png), popped-in and centered ---------- */
+
+.letter-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.letter-cover img {
+  max-width: min(1000px, 94vw);
+  max-height: 92vh;
+  max-height: 92dvh;
+  filter: drop-shadow(0 18px 45px rgba(0, 0, 0, 0.5));
+}
+
+/* ---------- reader: the SAME image, but rendered noticeably bigger
+   than the overview -- that size jump is what reads as "zoomed in",
+   and since it's taller than the screen at this size, it scrolls ---------- */
+
+.letter-reader {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  opacity: 0;
   pointer-events: none;
 }
 
-.envelope-body,
-.envelope-flap {
-  position: absolute;
-  inset: 0;
-}
-
-/* the pocket: full envelope minus the flap triangle (a V-notch
-   cut out of the top), so the flap's own layer can sit exactly
-   over that notch when closed and swing away from it when open */
-.envelope-body {
-  clip-path: polygon(2% 3%, 50% 68%, 97% 3%, 97% 97%, 2% 97%);
-  filter: drop-shadow(0 20px 45px rgba(0, 0, 0, 0.5));
-}
-
-/* just the flap triangle, hinged along the top edge */
-.envelope-flap {
-  clip-path: polygon(2% 3%, 97% 3%, 50% 68%);
-  transform-origin: 50% 3%;
-  transform-style: preserve-3d;
-  z-index: 2; /* always above the note, so it fully covers it while closed */
-}
-
-.envelope-note {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 84%;
-  min-height: 52%;
-  padding: 20px 18px;
-  box-sizing: border-box;
-  background: var(--card-bg) url("../assets/paper.jpg") center / cover no-repeat;
-  color: var(--card-ink);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+.letter-reader-inner {
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 48px;
   cursor: pointer;
-  font-family: 'Instrument Serif', var(--font-body);
-  z-index: 1; /* above the body's notch, under the flap while it's closed */
 }
 
-.envelope-note-text {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.4;
-  white-space: pre-line;
+.letter-reader img {
+  /* well past the overview's 1000px cap, so it's a real zoom in, not
+     a shrink -- wide enough to run past the viewport width so it
+     crops in tighter rather than just scaling the whole thing down
+     to fit */
+  width: min(1500px, 165vw);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 12px 34px rgba(0, 0, 0, 0.45));
 }
 
-/* pulled all the way out: grows to full readable size, same
-   proportions as the wish-card's own "reading" state */
-.envelope-note.is-reading {
-  width: min(560px, 90vw);
-  min-height: 0;
-  max-height: 80vh;
-  max-height: 80dvh;
-  overflow-y: auto;
-  padding: 56px 40px 48px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 60px rgba(255, 179, 71, 0.12);
+.envelope-note.is-reading .letter-cover {
+  pointer-events: none;
 }
 
-.envelope-note.is-reading .envelope-note-text {
-  font-size: clamp(1.3rem, 3vw, 1.6rem);
+.envelope-note.is-reading .letter-reader {
+  pointer-events: auto;
 }

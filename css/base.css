@@ -9,7 +9,15 @@
   --card-ink: #2a2320;
   --flame: #ffb347;
   --gold: #c98a3e;
-  --font-body: 'Georgia', serif;
+  --font-body: 'Jeju Myeongjo', Georgia, serif;
+  --ticker-h: 24px;
+
+  /* Cake size drives the whole cake scene: candles, flames and the hover
+     lift are all fractions of it, so change this one value to resize it.
+     cake.png is square; the min() keeps it inside the hero's padded width
+     on narrow phones instead of squashing it. */
+  --cake-h: min(47vh, calc(100vw - 40px));
+  --candle-h: calc(var(--cake-h) * 0.19);
 }
 
 * {
@@ -39,6 +47,7 @@ section {
   height: 100dvh;
   box-sizing: border-box;
   padding: 20px;
+  padding-top: calc(var(--ticker-h) + 20px); /* room for the fixed top-ticker bar */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -73,7 +82,7 @@ section {
   object-fit: contain;
   /* when letterboxed (phones), sit the sign above the candles rather
      than dead center where the cake overlaps it; no effect on desktop */
-  object-position: 50% 35%;
+  object-position: 50% 15%;
 }
 
 .scroll-hint {
@@ -84,8 +93,10 @@ section {
 .cake-wrap {
   position: relative;
   z-index: 2;
-  margin: -42vh auto 0;
-  height: 40vh;
+  /* pull up over the sign by the cake's own height (+2vh) so the plate
+     keeps sitting just above the bottom of the screen at any size */
+  margin: calc(-1 * (var(--cake-h) + 2vh)) auto 0;
+  height: var(--cake-h);
   width: auto;
   max-width: 92vw;
 }
@@ -134,9 +145,8 @@ section {
 
 .candle-glow {
   position: absolute;
-  width: 320px;
-  height: 320px;
-  margin-top: -52px; /* up from the candle's base to its flame */
+  /* width/height/margin-top are set by cards.js from the candle's size
+     (margin-top lifts it from the candle's base up to its flame) */
   pointer-events: none;
 }
 
@@ -149,7 +159,7 @@ section {
       rgba(255, 179, 71, 0.28) 30%,
       rgba(255, 150, 60, 0.08) 55%,
       transparent 70%);
-  filter: blur(18px);
+  filter: blur(calc(18px * var(--glow-k, 1))); /* --glow-k set by cards.js */
   animation: glow-pulse 2.4s ease-in-out infinite;
 }
 
@@ -188,7 +198,7 @@ section {
   background: var(--card-bg);
   color: var(--card-ink);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  font-family: 'Instrument Serif', var(--font-body);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 1.35rem;
 }

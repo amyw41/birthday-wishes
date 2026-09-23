@@ -11,6 +11,7 @@
 
 let clickSound = null;
 let blowSound = null;
+let songSound = null;
 
 export function initSound() {
   clickSound = new Howl({
@@ -25,6 +26,18 @@ export function initSound() {
     preload: true,
     volume: 0.8,
     pool: 4,
+  });
+
+  // the load-in song that plays alongside the balloon rain -- Howler
+  // queues this play() and fires it as soon as the audio context
+  // unlocks on the visitor's first tap/click, even if that happens a
+  // beat after load
+  songSound = new Howl({
+    src: ["assets/gg-f-king-ez.mp3"],
+    preload: true,
+    volume: 0.6,
+    onloaderror: (id, err) => console.error("song failed to load:", err),
+    onplayerror: (id, err) => console.error("song failed to play:", err),
   });
 
   // Chrome/Safari start the Web Audio context "suspended" until a user
@@ -50,4 +63,9 @@ export function playClick() {
 // candle blow-out
 export function playBlow() {
   blowSound?.play();
+}
+
+// load-in song, played once alongside the balloon rain
+export function playSong() {
+  songSound?.play();
 }
