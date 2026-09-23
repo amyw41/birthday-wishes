@@ -25,10 +25,13 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
   candle.dataset.state = "idle";
   candle.dataset.index = index;
   candle.style.setProperty("--candle-color", PALETTE[index % PALETTE.length]);
+  // candle.png is a fixed pink/white striped illustration -- rotate its hue
+  // per candle so the row still reads as 19 differently-colored candles.
+  candle.style.setProperty("--hue-rotate", `${(index * 360) / PALETTE.length}deg`);
 
   candle.innerHTML = `
+    <img class="wick" src="assets/candle.png" alt="">
     <div class="flame"></div>
-    <div class="wick"></div>
   `;
 
   const flame = candle.querySelector(".flame");
@@ -96,14 +99,56 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
    every one is out (cards.js/gallery.js hook into this in a
    later step).
    --------------------------------------------------------- */
-// cake.png has a lot of transparent padding around the drawn cake — its
-// opaque top surface starts about 29% down the image and spans roughly
-// x:[0.215, 0.783] (measured previously via a canvas alpha scan), so the
-// ring is centered on that visible icing line, not the raw image bounds.
-const RING_CENTER_X = 50;
-const RING_CENTER_Y = 29;
-const RING_RADIUS_X = 27;
-const RING_RADIUS_Y = 4;
+// Measured directly off the current cake.png using a percent grid overlay:
+// the tan crust forms a full oval (the round top of the cake seen at an
+// angle) -- back edge ~7% down, front edge ~31% down, left edge ~6%, right
+// edge ~90% across. Candles are spaced around that whole oval (not just the
+// front half) so it reads as a ring circling the cake, same as before.
+// Re-measure this any time cake.png is swapped for a different image.
+const RING_CENTER_X = 48;
+const RING_CENTER_Y = 19;
+const RING_RADIUS_X = 36;
+const RING_RADIUS_Y = 10;
+
+// Evenly-spaced angles by ARC LENGTH around the FULL ellipse (a closed
+// loop), starting the walk at the very top (angle -PI/2). Two things this
+// fixes at once:
+//  - a flat ellipse sampled at uniform ANGLES bunches points up near the
+//    left/right ends, which is why candles were overlapping there -- arc
+//    length spacing walks the actual perimeter instead.
+//  - starting exactly at the top (a symmetry axis of the ellipse) and
+//    walking the full loop one direction gives a point set that is mirror-
+//    symmetric about the vertical center line no matter how many candles
+//    there are, so the odd one out lands dead center and the rest pair up
+//    evenly left/right.
+function evenlySpacedAngles(n, radiusXpx, radiusYpx) {
+  const startAngle = -Math.PI / 2;
+  const samples = 2000;
+  const arc = [0];
+  let prevX = radiusXpx * Math.cos(startAngle);
+  let prevY = radiusYpx * Math.sin(startAngle);
+  for (let i = 1; i <= samples; i++) {
+    const t = startAngle + (i / samples) * (Math.PI * 2);
+    const x = radiusXpx * Math.cos(t);
+    const y = radiusYpx * Math.sin(t);
+    arc.push(arc[i - 1] + Math.hypot(x - prevX, y - prevY));
+    prevX = x;
+    prevY = y;
+  }
+  const total = arc[samples];
+  const angles = [];
+  for (let i = 0; i < n; i++) {
+    const targetLen = (i / n) * total; // closed loop -- don't repeat the start point
+    let lo = 0, hi = samples;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (arc[mid] < targetLen) lo = mid + 1;
+      else hi = mid;
+    }
+    angles.push(startAngle + (lo / samples) * (Math.PI * 2));
+  }
+  return angles;
+}
 
 export function initCandle() {
   const row = document.getElementById("candle-row");
@@ -111,8 +156,13 @@ export function initCandle() {
 
   let blownCount = 0;
 
+  const rowRect = row.getBoundingClientRect();
+  const radiusXpx = (RING_RADIUS_X / 100) * rowRect.width;
+  const radiusYpx = (RING_RADIUS_Y / 100) * rowRect.height;
+  const angles = evenlySpacedAngles(TOTAL_CANDLES, radiusXpx, radiusYpx);
+
   for (let i = 0; i < TOTAL_CANDLES; i++) {
-    const angle = (i / TOTAL_CANDLES) * Math.PI * 2 - Math.PI / 2;
+    const angle = angles[i];
     const left = RING_CENTER_X + RING_RADIUS_X * Math.cos(angle);
     const top = RING_CENTER_Y + RING_RADIUS_Y * Math.sin(angle);
 
@@ -127,8 +177,8 @@ export function initCandle() {
 
     candle.style.left = `${left}%`;
     candle.style.top = `${top}%`;
-    gsap.set(candle, { xPercent: -50, yPercent: -100 });
 
-    row.appendChild(candle);
+    row.appendChild(candle); // must be in the DOM before GSAP measures it for xPercent/yPercent
+    gsap.set(candle, { xPercent: -50, yPercent: -100 });
   }
 }

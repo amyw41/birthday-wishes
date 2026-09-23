@@ -5,9 +5,10 @@
 
 .candle {
   --candle-color: #e0b17a;
+  --hue-rotate: 0deg;
   position: absolute;
-  width: 10px;
-  height: 34px;
+  width: 14px;
+  height: 52px;
   cursor: pointer;
   pointer-events: auto;
   transform-origin: bottom center;
@@ -18,15 +19,15 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 8px;
-  height: 30px;
-  background: linear-gradient(var(--candle-color), color-mix(in srgb, var(--candle-color) 70%, black));
-  border-radius: 2px;
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: hue-rotate(var(--hue-rotate));
 }
 
 .candle .flame {
   position: absolute;
-  bottom: 28px;
+  bottom: 90%;
   left: 50%;
   width: 12px;
   height: 18px;

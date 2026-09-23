@@ -16,7 +16,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -41,7 +42,7 @@ section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* text pinned to top, cake fills down toward the bottom */
+  justify-content: center;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -55,16 +56,17 @@ section {
   width: 100%;
 }
 
-#hero h1 {
+.hbd-sign {
   position: relative;
   z-index: 1;
-  font-family: 'Instrument Serif', var(--font-body);
-  font-weight: 400; /* Instrument Serif only ships a regular weight — 700 was a no-op */
-  -webkit-text-stroke: clamp(1px, 0.35vw, 3px) currentColor; /* thickens the otherwise light strokes */
-  font-size: clamp(2.5rem, 20vw, 360px);
-  margin: 0;
-  line-height: 1;
-  letter-spacing: 0.01em;
+  display: block;
+  margin: 0 auto;
+  /* sized by viewport HEIGHT (not width) so it and the cake below always
+     fit together inside the screen instead of pushing the cake off the
+     bottom */
+  height: 100vh;
+  width: auto;
+  max-width: 96vw;
 }
 
 .scroll-hint {
@@ -75,30 +77,24 @@ section {
 .cake-wrap {
   position: relative;
   z-index: 2;
-  margin-top: -7vw;
-  width: min(95vw, 82vh, 1200px);
+  margin: -42vh auto 0;
+  height: 40vh;
+  width: auto;
+  max-width: 92vw;
 }
 
 .cake {
-  width: 100%;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
   border-radius: 16px;
   display: block;
-  /* white "sticker" outline that traces the cake's actual silhouette (its alpha
-     channel), not a bounding box — this is what makes the overlapping text look
-     cleanly cut off right at the cake's edge instead of a rectangle */
-  filter:
-    drop-shadow(6px 0 0 #fff)
-    drop-shadow(-6px 0 0 #fff)
-    drop-shadow(0 6px 0 #fff)
-    drop-shadow(0 -6px 0 #fff)
-    drop-shadow(4.5px 4.5px 0 #fff)
-    drop-shadow(-4.5px 4.5px 0 #fff)
-    drop-shadow(4.5px -4.5px 0 #fff)
-    drop-shadow(-4.5px -4.5px 0 #fff);
+  margin: 0 auto;
 }
 
 #candle-row {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 3;
 }
