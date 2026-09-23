@@ -2,12 +2,12 @@
    Imports the above, boots everything on load.
    ========================================================= */
 
-import { WISHES, LETTER } from "./wishes.js";
 import { initSound } from "./sound.js";
 import { initCandle } from "./candle.js";
 import { initScroll } from "./scroll.js";
 import { initCards } from "./cards.js";
 import { initGallery } from "./gallery.js";
+import { initEnvelope } from "./envelope.js";
 
 window.addEventListener("load", () => {
   initSound();
@@ -15,4 +15,5 @@ window.addEventListener("load", () => {
   initScroll();
   initCards();
   initGallery();
+  initEnvelope();
 });

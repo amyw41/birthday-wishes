@@ -12,19 +12,28 @@
   <link rel="stylesheet" href="css/candle.css">
   <link rel="stylesheet" href="css/card.css">
   <link rel="stylesheet" href="css/gallery.css">
+  <link rel="stylesheet" href="css/envelope.css">
 </head>
 
 <body>
 
   <section id="hero">
     <div class="hero-stack">
-      <img class="hbd-sign" src="assets/hbd.png" alt="happy birthday olivia">
+      <img class="hbd-sign" src="assets/hbd%20sign.png" alt="happy birthday olivia">
       <div class="cake-wrap">
         <div id="candle-row"></div>
         <img src="assets/cake.png" alt="olivia's favorite cake" class="cake">
       </div>
     </div>
+    <div id="end-prompt" class="end-prompt" aria-live="polite">
+      <p class="end-label">the end <span class="end-arrow" aria-hidden="true">&darr;</span></p>
+      <button id="gallery-btn" class="gallery-btn" type="button">see all 19 wishes</button>
+    </div>
   </section>
+
+  <button id="envelope-btn" class="envelope-btn" type="button" aria-label="open a letter for olivia">
+    <img src="assets/envelope.png" alt="">
+  </button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>

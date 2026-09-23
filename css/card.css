@@ -1,4 +1,68 @@
 /* =========================================================
    Wish card: peeked / open states
-   Built in a later step. Animate transform/opacity only.
+   Animate transform/opacity only.
    ========================================================= */
+
+/* hidden by default (GSAP sets opacity 0 / y 40px); cards.js
+   sets `top` so it lands just under the risen candle */
+.wish-card {
+  position: fixed;
+  left: 50%;
+  z-index: 101;
+  width: min(440px, 92vw);
+  min-height: 58vh;
+  min-height: 58dvh;
+  max-height: 80vh;
+  max-height: 80dvh;
+  padding: 44px 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: var(--card-bg) url("../assets/paper.jpg") center / cover no-repeat;
+  color: var(--card-ink);
+  border-radius: 0;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 60px rgba(255, 179, 71, 0.12);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.wish-text {
+  margin: 0;
+  font-family: 'Instrument Serif', var(--font-body);
+  font-size: 1.6rem;
+  line-height: 1.3;
+}
+
+/* reading: a gallery card opened full-screen (cards.js
+   openCardFullscreen). Centered, bigger, read-only; clicking it
+   or the overlay closes it. */
+.wish-card.is-reading {
+  width: min(560px, 90vw);
+  max-height: 80vh;
+  max-height: 80dvh;
+  overflow-y: auto;
+  padding: 56px 40px 48px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.wish-card.is-reading .wish-text {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+}
+
+/* the final letter: dark card with a gold edge, left-aligned
+   so a longer message reads like a letter */
+.wish-card.is-letter {
+  background: var(--card-ink);
+  color: var(--card-bg);
+  border: 2px solid var(--gold);
+  text-align: left;
+}
+
+.wish-card.is-letter .wish-text {
+  font-size: clamp(1.3rem, 3vw, 1.6rem);
+  line-height: 1.5;
+  white-space: pre-line;
+}
+

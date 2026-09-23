@@ -19,8 +19,12 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100%;
-  height: auto;
+  /* candle.png is a TALL image -- size it by height so it fills the
+     candle box top-to-bottom; sizing by width (its old square canvas)
+     left it as a tiny sliver at the bottom with tons of empty space
+     above it, which is why the flame used to float way too high. */
+  height: 100%;
+  width: auto;
   display: block;
   filter: hue-rotate(var(--hue-rotate));
 }

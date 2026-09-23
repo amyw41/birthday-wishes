@@ -1,28 +1,29 @@
 /* =========================================================
    Data only: 19 wish strings + the closing letter text.
    No logic here — filled in / edited as content, not code.
+   WISHES[i] is the card for candle i (candle #1 = WISHES[0]).
    ========================================================= */
 
 export const WISHES = [
-  "wish 1 — write it here",
-  "wish 2 — write it here",
-  "wish 3 — write it here",
-  "wish 4 — write it here",
-  "wish 5 — write it here",
-  "wish 6 — write it here",
-  "wish 7 — write it here",
-  "wish 8 — write it here",
-  "wish 9 — write it here",
-  "wish 10 — write it here",
-  "wish 11 — write it here",
-  "wish 12 — write it here",
-  "wish 13 — write it here",
-  "wish 14 — write it here",
-  "wish 15 — write it here",
-  "wish 16 — write it here",
-  "wish 17 — write it here",
-  "wish 18 — write it here",
-  "wish 19 — write it here",
+  "wish 1",
+  "wish 2",
+  "wish 3",
+  "wish 4",
+  "wish 5",
+  "wish 6",
+  "wish 7",
+  "wish 8",
+  "wish 9",
+  "wish 10",
+  "wish 11",
+  "wish 12",
+  "wish 13",
+  "wish 14",
+  "wish 15",
+  "wish 16",
+  "wish 17",
+  "wish 18",
+  "wish 19",
 ];
 
-export const LETTER = "write your closing message here. this is the card only you get to open at the end.";
+export const FINAL_LETTER = "final letter — write your closing message here.";

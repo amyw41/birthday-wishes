@@ -12,6 +12,8 @@
    flame and settles it back down in place.
    ========================================================= */
 
+import { playClick, playBlow } from "./sound.js";
+
 const PALETTE = [
   "#e07a7a", "#e0b17a", "#e0d97a", "#a7e07a", "#7ae0b1",
   "#7ac9e0", "#7a8ee0", "#b17ae0", "#e07ac9", "#e0a17a",
@@ -39,13 +41,13 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
   function riseUp() {
     if (candle.dataset.state !== "idle") return;
     candle.dataset.state = "hover";
-    gsap.to(candle, { y: -14, duration: 0.15, ease: "power2.out" });
+    gsap.to(candle, { y: -14, duration: 0.4, ease: "power2.out" });
   }
 
   function settleDown() {
     if (candle.dataset.state !== "hover") return;
     candle.dataset.state = "idle";
-    gsap.to(candle, { y: 0, duration: 0.15, ease: "power2.out" });
+    gsap.to(candle, { y: 0, duration: 0.4, ease: "power2.out" });
   }
 
   function lightClick() {
@@ -59,6 +61,7 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
 
   function blowOut() {
     candle.dataset.state = "blown";
+    playBlow();
     flame.style.willChange = "transform, opacity";
     gsap.to(candle, { y: 0, scale: 1, duration: 0.3, ease: "power2.inOut" });
     gsap.to(flame, {
@@ -81,7 +84,10 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
 
   candle.addEventListener("click", () => {
     const state = candle.dataset.state;
+    // click sound only on the click that opens the card;
+    // the blow-out click plays just the blow sound (in blowOut)
     if (state === "idle" || state === "hover") {
+      playClick();
       lightClick();
     } else if (state === "lit-clicked") {
       blowOut();
@@ -99,16 +105,14 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
    every one is out (cards.js/gallery.js hook into this in a
    later step).
    --------------------------------------------------------- */
-// Measured directly off the current cake.png using a percent grid overlay:
-// the tan crust forms a full oval (the round top of the cake seen at an
-// angle) -- back edge ~7% down, front edge ~31% down, left edge ~6%, right
-// edge ~90% across. Candles are spaced around that whole oval (not just the
-// front half) so it reads as a ring circling the cake, same as before.
-// Re-measure this any time cake.png is swapped for a different image.
-const RING_CENTER_X = 48;
-const RING_CENTER_Y = 19;
-const RING_RADIUS_X = 36;
-const RING_RADIUS_Y = 10;
+// Re-measured off the current (real-photo) cake.png with a percent grid:
+// the swirled tan top forms an oval -- back edge ~6% down, front edge
+// ~51% down, left edge ~9%, right edge ~91% across. Re-measure this any
+// time cake.png is swapped for a different image.
+const RING_CENTER_X = 50;
+const RING_CENTER_Y = 32;
+const RING_RADIUS_X = 38;
+const RING_RADIUS_Y = 23;
 
 // Evenly-spaced angles by ARC LENGTH around the FULL ellipse (a closed
 // loop), starting the walk at the very top (angle -PI/2). Two things this
@@ -177,6 +181,10 @@ export function initCandle() {
 
     candle.style.left = `${left}%`;
     candle.style.top = `${top}%`;
+    // candles further "back" on the cake (smaller top%) should render
+    // behind ones further "front" (larger top%), so a near candle's flame
+    // never gets covered by a farther one it happens to overlap
+    candle.style.zIndex = String(Math.round(top * 10));
 
     row.appendChild(candle); // must be in the DOM before GSAP measures it for xPercent/yPercent
     gsap.set(candle, { xPercent: -50, yPercent: -100 });
