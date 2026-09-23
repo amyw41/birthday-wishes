@@ -3,8 +3,8 @@
    ========================================================= */
 
 :root {
-  --bg: #faf1e0;
-  --ink: #2a2320;
+  --bg: #ffffff;
+  --ink: #000000;
   --card-bg: #fdf6ec;
   --card-ink: #2a2320;
   --flame: #ffb347;
@@ -35,24 +35,33 @@ section {
 
 #hero {
   height: 100vh;
-  height: 100dvh; /* accounts for mobile browser chrome so nothing gets clipped */
+  height: 100dvh;
   box-sizing: border-box;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between; /* heading pinned to top, cake pinned to bottom */
+  justify-content: flex-start; /* text pinned to top, cake fills down toward the bottom */
   text-align: center;
   position: relative;
   overflow: hidden;
 }
 
-.hero-top {
+.hero-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
 }
 
 #hero h1 {
-  font-size: clamp(3.5rem, 11vw, 8rem);
+  position: relative;
+  z-index: 1;
+  font-family: 'Instrument Serif', var(--font-body);
+  font-weight: 400; /* Instrument Serif only ships a regular weight — 700 was a no-op */
+  -webkit-text-stroke: clamp(1px, 0.35vw, 3px) currentColor; /* thickens the otherwise light strokes */
+  font-size: clamp(2.5rem, 20vw, 360px);
   margin: 0;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -61,11 +70,12 @@ section {
 .scroll-hint {
   opacity: 0.65;
   font-size: 1rem;
-  margin-top: 0.5rem;
 }
 
 .cake-wrap {
   position: relative;
+  z-index: 2;
+  margin-top: -7vw;
   width: min(95vw, 82vh, 1200px);
 }
 
@@ -73,6 +83,18 @@ section {
   width: 100%;
   border-radius: 16px;
   display: block;
+  /* white "sticker" outline that traces the cake's actual silhouette (its alpha
+     channel), not a bounding box — this is what makes the overlapping text look
+     cleanly cut off right at the cake's edge instead of a rectangle */
+  filter:
+    drop-shadow(6px 0 0 #fff)
+    drop-shadow(-6px 0 0 #fff)
+    drop-shadow(0 6px 0 #fff)
+    drop-shadow(0 -6px 0 #fff)
+    drop-shadow(4.5px 4.5px 0 #fff)
+    drop-shadow(-4.5px 4.5px 0 #fff)
+    drop-shadow(4.5px -4.5px 0 #fff)
+    drop-shadow(-4.5px -4.5px 0 #fff);
 }
 
 #candle-row {
