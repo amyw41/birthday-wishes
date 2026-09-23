@@ -1,16 +1,44 @@
-/* =========================================================
-   Candle states: idle, hover, lit-clicked, blown
-   All motion is transform/opacity only.
-   ========================================================= */
+.cake-wrap {
+  position: relative;
+  margin-top: 1rem;
+  width: min(90vw, 760px);
+}
+
+.cake {
+  width: 100%;
+  display: block;
+  border-radius: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+#candle-row {
+  position: absolute;
+  top: -34px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  z-index: 2;
+  pointer-events: none;
+}
 
 .candle {
   --candle-color: #e0b17a;
-  position: absolute;
+  position: relative;
   width: 10px;
   height: 34px;
   cursor: pointer;
   pointer-events: auto;
+  transform: translateY(0) scale(1);
+  transition: transform 0.18s ease-out;
   transform-origin: bottom center;
+}
+
+.candle:hover:not(.blown):not(.lit-clicked) {
+  transform: translateY(-14px);
 }
 
 .candle .wick {
@@ -31,11 +59,11 @@
   width: 12px;
   height: 18px;
   transform: translateX(-50%);
-  transform-origin: bottom center;
-  background: radial-gradient(circle at 50% 70%, #fff2c8 0%, var(--flame) 45%, transparent 75%);
+  background: radial-gradient(circle at 50% 70%, #fff2c8 0%, #ffb347 45%, transparent 75%);
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  filter: drop-shadow(0 0 6px var(--flame));
+  filter: drop-shadow(0 0 6px #ffb347);
   animation: flicker 1.4s ease-in-out infinite;
+  transform-origin: bottom center;
 }
 
 @keyframes flicker {
@@ -45,16 +73,20 @@
   75% { transform: translateX(-50%) scale(1.02, 0.98) rotate(1deg); opacity: 0.9; }
 }
 
-/* lit-clicked: brighter glow to read as "active" */
-.candle[data-state="lit-clicked"] .flame {
-  filter: drop-shadow(0 0 10px var(--flame)) drop-shadow(0 0 24px rgba(255, 179, 71, 0.85));
+.candle.lit-clicked {
+  transform: translateY(-6px) scale(1.25);
+  z-index: 5;
 }
 
-/* blown: flame animation stops, GSAP owns opacity/scale from here */
-.candle[data-state="blown"] .flame {
+.candle.lit-clicked .flame {
+  filter: drop-shadow(0 0 10px #ffb347) drop-shadow(0 0 26px rgba(255,179,71,0.7));
+}
+
+.candle.blown .flame {
   animation: none;
+  opacity: 0;
 }
 
-.candle[data-state="blown"] {
-  cursor: default;
+.candle.blown {
+  transform: translateY(0) scale(1);
 }

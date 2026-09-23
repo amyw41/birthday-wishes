@@ -3,12 +3,12 @@
    ========================================================= */
 
 :root {
-  --bg: #0d0d14;
-  --ink: #f4efe6;
+  --bg: #faf1e0;
+  --ink: #2a2320;
   --card-bg: #fdf6ec;
   --card-ink: #2a2320;
   --flame: #ffb347;
-  --gold: #e8c07d;
+  --gold: #c98a3e;
   --font-body: 'Georgia', serif;
 }
 
@@ -19,10 +19,12 @@
 html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  width: 100%;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 section {
@@ -33,48 +35,48 @@ section {
 
 #hero {
   height: 100vh;
+  height: 100dvh; /* accounts for mobile browser chrome so nothing gets clipped */
+  box-sizing: border-box;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* heading pinned to top, cake pinned to bottom */
   text-align: center;
   position: relative;
+  overflow: hidden;
+}
+
+.hero-top {
+  width: 100%;
 }
 
 #hero h1 {
-  font-size: 3rem;
+  font-size: clamp(3.5rem, 11vw, 8rem);
   margin: 0;
-  letter-spacing: 0.02em;
+  line-height: 1;
+  letter-spacing: 0.01em;
 }
 
 .scroll-hint {
-  opacity: 0.6;
-  font-size: 0.9rem;
+  opacity: 0.65;
+  font-size: 1rem;
   margin-top: 0.5rem;
-  animation: bob 2s ease-in-out infinite;
-}
-
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
 }
 
 .cake-wrap {
   position: relative;
-  margin-top: 4rem;
+  width: min(95vw, 82vh, 1200px);
 }
 
 .cake {
-  width: min(60vw, 320px);
-  border-radius: 12px;
+  width: 100%;
+  border-radius: 16px;
   display: block;
 }
 
-#hero-candle {
+#candle-row {
   position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 40px;
+  inset: 0;
+  pointer-events: none;
 }
