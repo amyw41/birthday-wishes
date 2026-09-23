@@ -1,0 +1,80 @@
+/* =========================================================
+   Reset + color/font variables + layout shell
+   ========================================================= */
+
+:root {
+  --bg: #0d0d14;
+  --ink: #f4efe6;
+  --card-bg: #fdf6ec;
+  --card-ink: #2a2320;
+  --flame: #ffb347;
+  --gold: #e8c07d;
+  --font-body: 'Georgia', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+section {
+  width: 100%;
+}
+
+/* ---------- HERO ---------- */
+
+#hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+#hero h1 {
+  font-size: 3rem;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.scroll-hint {
+  opacity: 0.6;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  animation: bob 2s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+.cake-wrap {
+  position: relative;
+  margin-top: 4rem;
+}
+
+.cake {
+  width: min(60vw, 320px);
+  border-radius: 12px;
+  display: block;
+}
+
+#hero-candle {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 40px;
+}
