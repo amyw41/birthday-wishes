@@ -41,27 +41,44 @@ export function initSound() {
   });
 
   // Chrome/Safari start the Web Audio context "suspended" until a user
-  // gesture. Howler unlocks it automatically on the first play() call, but
-  // that unlock (resume) itself takes a beat -- which is exactly the delay
-  // on that first sound. Kick the resume off on the very first pointerdown
-  // anywhere on the page, so by the time a candle is actually clicked the
-  // context is already running.
-  const unlockAudio = () => {
+  // gesture, AND will silently re-suspend it again after the tab sits in
+  // the background for a while (power saving) -- so this can't be a
+  // one-time unlock, it has to keep happening. Kick a resume off on every
+  // pointerdown anywhere on the page (resuming an already-running context
+  // is a harmless no-op), so by the time a candle is actually clicked the
+  // context is already running again.
+  const resumeIfSuspended = () => {
     if (Howler.ctx && Howler.ctx.state !== "running") {
       Howler.ctx.resume();
     }
-    window.removeEventListener("pointerdown", unlockAudio);
   };
-  window.addEventListener("pointerdown", unlockAudio);
+  window.addEventListener("pointerdown", resumeIfSuspended);
+
+  // the other half of "after some time off it": catch it the moment the
+  // tab comes back into view, before the visitor even clicks anything, so
+  // the resume has a head start instead of racing the first click
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") resumeIfSuspended();
+  });
+}
+
+// belt-and-suspenders: resume right before playing too, in case the
+// pointerdown/visibilitychange listeners haven't caught it yet
+function resumeIfSuspended() {
+  if (Howler.ctx && Howler.ctx.state !== "running") {
+    Howler.ctx.resume();
+  }
 }
 
 // short UI click: only on the mouse click that opens a candle's card
 export function playClick() {
+  resumeIfSuspended();
   clickSound?.play();
 }
 
 // candle blow-out
 export function playBlow() {
+  resumeIfSuspended();
   blowSound?.play();
 }
 
