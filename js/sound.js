@@ -69,3 +69,19 @@ export function playBlow() {
 export function playSong() {
   songSound?.play();
 }
+
+// Resuming the raw audio context isn't enough on its own -- Howler
+// still does its real "unlock" (which warms up every pooled node) on
+// the first actual play() call per sound, and that step is what was
+// causing the first candle click to lag. Firing a real, silent
+// play()+stop() on each sound during the unlock screen's tap (a
+// trusted gesture) does that warm-up right then, so by the time a
+// candle is actually clicked it's instant.
+export function primeSounds() {
+  [clickSound, blowSound].forEach((sound) => {
+    if (!sound) return;
+    const id = sound.play();
+    sound.volume(0, id);
+    sound.stop(id);
+  });
+}

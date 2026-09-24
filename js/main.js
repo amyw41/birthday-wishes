@@ -2,7 +2,7 @@
    Imports the above, boots everything on load.
    ========================================================= */
 
-import { initSound, playSong } from "./sound.js";
+import { initSound, playSong, primeSounds } from "./sound.js";
 import { initCandle } from "./candle.js";
 import { initScroll } from "./scroll.js";
 import { initCards } from "./cards.js";
@@ -26,4 +26,5 @@ initEnvelope();
 initUnlock(() => {
   initScroll();
   playSong();
+  primeSounds();
 });
