@@ -30,11 +30,11 @@ export function initEnvelope() {
   note.className = "envelope-note";
   note.innerHTML = `
     <div class="letter-cover">
-      <img src="assets/letter.png" alt="a letter for olivia">
+      <img src="assets/letter.png" alt="a letter for olivia" draggable="false">
     </div>
     <div class="letter-reader">
       <div class="letter-reader-inner">
-        <img src="assets/letter.png" alt="the letter, zoomed in">
+        <img src="assets/letter.png" alt="the letter, zoomed in" draggable="false">
       </div>
     </div>
   `;

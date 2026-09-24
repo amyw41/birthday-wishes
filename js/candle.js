@@ -32,7 +32,7 @@ export function createCandle(index, { onLitClick, onBlown } = {}) {
   candle.style.setProperty("--hue-rotate", `${(index * 360) / PALETTE.length}deg`);
 
   candle.innerHTML = `
-    <img class="wick" src="assets/candle.png" alt="">
+    <img class="wick" src="assets/candle.png" alt="" draggable="false">
     <div class="flame-wrap"><div class="flame"></div></div>
   `;
 
